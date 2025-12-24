@@ -1,13 +1,14 @@
 /* -------------------------
    Config
-   ------------------------- */
+------------------------- */
 const DISCORD_ID = '1372459254136705064';
 const LANYARD_API = `https://api.lanyard.rest/v1/users/${DISCORD_ID}`;
 const QUOTES_TXT = 'https://moonlightrblx.github.io/api/quotes.txt';
-const POLL_INTERVAL = 15000;
+const POLL_INTERVAL = 15000; // 15s
+
 /* -------------------------
    Helpers
-   ------------------------- */
+------------------------- */
 const $ = sel => document.querySelector(sel);
 const el = (tag, attrs = {}, children = []) => {
   const e = document.createElement(tag);
@@ -19,7 +20,7 @@ const el = (tag, attrs = {}, children = []) => {
   return e;
 };
 
-/* ---- Time formatting ---- */
+/* Time formatting */
 const formatElapsed = ms => {
   if (ms < 0) return 'just now';
   const s = Math.floor(ms / 1000);
@@ -28,79 +29,92 @@ const formatElapsed = ms => {
   const d = Math.floor(h / 24);
   if (d > 0) return `${d}d ${h % 24}h`;
   if (h > 0) return `${h}h ${m % 60}min`;
-  if (m > 0) return `${m} min`;
-  return `${s} sec`;
+  if (m > 0) return `${m}min`;
+  return `${s}s`;
 };
+
 const formatTimestamp = ts => new Date(ts).toLocaleString(undefined, {
   month: 'short', day: 'numeric', year: 'numeric',
   hour: '2-digit', minute: '2-digit'
 });
-const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+const shuffle = arr => {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
 
 /* -------------------------
    Quotes
-   ------------------------- */
-let quotes = [], quoteIndex = 0, quoteTimer = null;
+------------------------- */
+let quotes = [], currentQuoteIndex = 0, quoteTimer = null;
 
 async function loadQuotes() {
   try {
     const res = await fetch(QUOTES_TXT, { cache: 'no-cache' });
-    if (!res.ok) throw new Error('quotes fetch failed');
-    const txt = await res.text();
-    quotes = txt.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-    if (!quotes.length) throw new Error('no quotes');
+    if (!res.ok) throw new Error(`Quotes fetch failed: ${res.status}`);
+    const text = await res.text();
+    quotes = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if (!quotes.length) throw new Error('No quotes found');
+    
     shuffle(quotes);
     $('#quoteCount').textContent = `Quotes: ${quotes.length}`;
     showRandomQuote(true);
   } catch (err) {
-    console.error('Quotes error', err);
-    $('#quoteText').textContent = 'Could not load quotes.';
+    console.error('Quotes error:', err);
+    $('#quoteText').textContent = 'Failed to load quotes.';
   }
 }
 
-function showRandomQuote(first = false) {
+function showRandomQuote(isFirst = false) {
   if (!quotes.length) return;
-  if (first) quoteIndex = Math.floor(Math.random() * quotes.length);
-  else quoteIndex = (quoteIndex + 1) % quotes.length;
+
+  if (isFirst) {
+    currentQuoteIndex = Math.floor(Math.random() * quotes.length);
+  } else {
+    currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+  }
 
   const box = $('#quoteBox');
-  box.classList.remove('fade-enter-active');
   box.classList.add('fade-exit-active');
   setTimeout(() => {
-    $('#quoteText').textContent = quotes[quoteIndex];
+    $('#quoteText').textContent = quotes[currentQuoteIndex];
     box.classList.remove('fade-exit-active');
     box.classList.add('fade-enter-active');
-  }, 180);
+  }, 300);
 
-  if (quoteTimer) clearInterval(quoteTimer);
+  clearInterval(quoteTimer);
   quoteTimer = setInterval(showRandomQuote, 8000);
 }
 
 /* -------------------------
-   Lanyard
-   ------------------------- */
+   Lanyard & Profile
+------------------------- */
 let lastLanyardData = null;
 
 async function fetchLanyard() {
   try {
     const res = await fetch(LANYARD_API, { cache: 'no-store' });
-    if (!res.ok) throw new Error('Lanyard failed: ' + res.status);
+    if (!res.ok) throw new Error(`Lanyard failed: ${res.status}`);
     const { data } = await res.json();
-    if (!data) throw new Error('Malformed payload');
+    if (!data) throw new Error('Malformed Lanyard response');
+
     lastLanyardData = data;
     updateProfileUI(data);
-    $('#lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+    $('#lastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
   } catch (err) {
-    console.error('Lanyard error', err);
+    console.error('Lanyard error:', err);
     $('#statusText').textContent = 'Offline';
     $('#statusDot').style.background = 'gray';
+    $('#statusSince').textContent = '';
   }
 }
 
-/* ---- Avatar ---- */
-function avatarUrlFromLanyard(u) {
-  if (!u) return '';
-  const { id, avatar, discriminator = '0' } = u;
+function avatarUrlFromLanyard(user) {
+  if (!user) return '';
+  const { id, avatar, discriminator = '0' } = user;
   if (avatar) {
     const ext = avatar.startsWith('a_') ? 'gif' : 'png';
     return `https://cdn.discordapp.com/avatars/${id}/${avatar}.${ext}?size=512`;
@@ -109,13 +123,14 @@ function avatarUrlFromLanyard(u) {
   return `https://cdn.discordapp.com/embed/avatars/${idx}.png`;
 }
 
-/* ---- Status Color ---- */
 const statusColor = status => ({
-  online: '#43d675', idle: '#f6c244', dnd: '#ef4444',
-  offline: '#7b8894', invisible: '#7b8894'
+  online: '#43d675',
+  idle: '#f6c244',
+  dnd: '#ef4444',
+  offline: '#7b8894',
+  invisible: '#7b8894'
 })[status] || '#7b8894';
 
-/* ---- Asset URL ---- */
 function assetUrl(appId, asset, size = 128) {
   return asset ? `https://cdn.discordapp.com/app-assets/${appId}/${asset}.png?size=${size}` : '';
 }
@@ -134,9 +149,8 @@ function updateProfileUI(data) {
   const pfpImg = document.createElement('img');
   pfpImg.src = avatarUrlFromLanyard(user);
   pfpImg.alt = 'avatar';
-  const pfp = $('#pfp');
-  pfp.innerHTML = '';
-  pfp.appendChild(pfpImg);
+  $('#pfp').innerHTML = '';
+  $('#pfp').appendChild(pfpImg);
 
   // Status
   const statusText = (status || 'offline').toUpperCase();
@@ -145,37 +159,48 @@ function updateProfileUI(data) {
 
   // Status Since
   const since = data.active_on_discord ? new Date(data.active_on_discord) : null;
-  $('#statusSince').textContent = since ? `(${formatElapsed(Date.now() - since)})` : '';
+  $('#statusSince').textContent = since ? `(${formatElapsed(Date.now() - since.getTime())})` : '';
 
-  // Activity Block
+  // Activity / Spotify Block
   const block = $('#activityBlock');
   block.innerHTML = '';
+  block.classList.add('fade-enter-active');
 
   if (listening_to_spotify && spotify) {
     const { song, artist, album, album_art_url, timestamps } = spotify;
-    const start = timestamps?.start ? new Date(timestamps.start) : null;
-    const elapsed = start ? formatElapsed(Date.now() - start) : '';
+    const start = timestamps?.start ? timestamps.start : null;
+    const end = timestamps?.end ? timestamps.end : null;
 
-    const spNode = el('div', { class: 'spotify' }, [
-      el('div', { class: 'sp-art' }, [el('img', { src: album_art_url, alt: 'album' })]),
-      el('div', { class: 'sp-meta' }, [
-        el('div', { class: 'sp-song' }, song || 'Unknown'),
-        el('div', { class: 'sp-artist' }, `${artist || 'Unknown'} — ${album || ''}`),
-        start && el('div', { class: 'act-timestamp' }, `Started ${elapsed} ago`)
+    const totalDuration = end ? end - start : null;
+    const elapsedMs = start ? Date.now() - start : 0;
+    const progressPercent = totalDuration ? Math.min(100, (elapsedMs / totalDuration) * 100) : 0;
+
+    const spContainer = el('div', { class: 'spotify-container' }, [
+      el('div', { class: 'spotify-album' }, [
+        el('img', { src: album_art_url || '', alt: 'Album cover' })
+      ]),
+      el('div', { class: 'spotify-info' }, [
+        el('div', { class: 'spotify-title' }, song || 'Unknown Song'),
+        el('div', { class: 'spotify-artist' }, `${artist || 'Unknown'} — ${album || ''}`),
+        el('div', { class: 'spotify-progress' }, [
+          el('div', { class: 'spotify-progress-bar', style: `width: ${progressPercent}%` })
+        ]),
+        start && el('div', { class: 'act-timestamp' }, `Playing for ${formatElapsed(elapsedMs)}`)
       ])
     ]);
-    block.appendChild(spNode);
+
+    block.appendChild(spContainer);
   } else if (activities.length) {
     const act = activities.find(a => a.type !== 4) || activities[0];
     if (act) {
       const { name, details, state, timestamps, assets, application_id } = act;
-      const start = timestamps?.start ? new Date(timestamps.start) : null;
+      const start = timestamps?.start ? timestamps.start : null;
       const elapsed = start ? formatElapsed(Date.now() - start) : '';
 
       const actNode = el('div', { class: 'activity' }, [
-        el('div', { class: 'act-art' }, assets?.large_image
-          ? [el('img', { src: assetUrl(application_id, assets.large_image, 128), alt: 'large' })]
-          : []),
+        assets?.large_image && el('div', { class: 'act-art' }, [
+          el('img', { src: assetUrl(application_id, assets.large_image, 128), alt: 'activity large image' })
+        ]),
         el('div', { class: 'act-meta' }, [
           el('div', { class: 'act-name' }, name || 'Activity'),
           details && el('div', { class: 'act-details' }, details),
@@ -183,14 +208,6 @@ function updateProfileUI(data) {
           start && el('div', { class: 'act-timestamp' }, `Playing for ${elapsed}`)
         ])
       ]);
-
-      // Small assets with hover
-      if (assets?.small_image) {
-        const small = el('div', { class: 'act-asset', 'data-text': assets.small_text || '' },
-          [el('img', { src: assetUrl(application_id, assets.small_image, 64) })]);
-        const assetsRow = el('div', { class: 'act-assets' }, [small]);
-        actNode.appendChild(assetsRow);
-      }
 
       block.appendChild(actNode);
     }
@@ -200,15 +217,37 @@ function updateProfileUI(data) {
 }
 
 /* -------------------------
+   Custom Cursor
+------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const cursor = document.createElement('div');
+  cursor.classList.add('cursor');
+  document.body.appendChild(cursor);
+
+  document.addEventListener('mousemove', (e) => {
+    cursor.style.left = `${e.clientX}px`;
+    cursor.style.top = `${e.clientY}px`;
+  });
+
+  document.querySelectorAll('a, button, input, select, textarea, .clickable').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.style.opacity = '0.7');
+    el.addEventListener('mouseleave', () => cursor.style.opacity = '1');
+  });
+});
+
+/* -------------------------
    Init
-   ------------------------- */
+------------------------- */
 (async () => {
   await loadQuotes();
   await fetchLanyard();
   setInterval(fetchLanyard, POLL_INTERVAL);
 })();
 
-/* Space to shuffle quote */
+/* Spacebar to change quote */
 document.body.addEventListener('keydown', e => {
-  if (e.code === 'Space') { e.preventDefault(); showRandomQuote(); }
+  if (e.code === 'Space' && !e.target.matches('input, textarea')) {
+    e.preventDefault();
+    showRandomQuote();
+  }
 });
