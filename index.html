@@ -33,7 +33,6 @@
     cursor: none;
   }
 
-  /* Custom cursor */
   .cursor {
     width: 10px; height: 10px;
     background: var(--accent);
@@ -54,7 +53,6 @@
     transition: all 0.18s ease;
   }
 
-  /* Noise overlay */
   body::before {
     content: '';
     position: fixed; inset: 0;
@@ -63,7 +61,6 @@
     opacity: 0.4;
   }
 
-  /* ── GRID BACKGROUND ── */
   .grid-bg {
     position: fixed; inset: 0; z-index: 0;
     background-image:
@@ -73,7 +70,6 @@
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
   }
 
-  /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     padding: 20px 48px;
@@ -98,7 +94,6 @@
   }
   .nav-links a:hover { color: var(--text); }
 
-  /* ── HERO ── */
   .hero {
     min-height: 100vh; display: flex; align-items: center;
     padding: 120px 48px 80px;
@@ -167,7 +162,6 @@
   }
   .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
 
-  /* floating badge */
   .hero-badge {
     position: absolute; right: 80px; top: 50%;
     transform: translateY(-50%);
@@ -194,7 +188,6 @@
     font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase;
   }
 
-  /* ── SCROLL INDICATOR ── */
   .scroll-hint {
     position: absolute; bottom: 40px; left: 48px;
     font-family: 'JetBrains Mono', monospace; font-size: 10px;
@@ -208,7 +201,6 @@
     animation: scrollLine 1.5s ease-in-out infinite;
   }
 
-  /* ── SECTIONS ── */
   section {
     position: relative; z-index: 2;
     padding: 100px 48px;
@@ -231,7 +223,6 @@
     line-height: 1; margin-bottom: 56px;
   }
 
-  /* ── ABOUT ── */
   .about-grid {
     display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
   }
@@ -260,7 +251,6 @@
     color: var(--muted); margin-top: 4px;
   }
 
-  /* ── STACK ── */
   .stack-list {
     display: flex; flex-wrap: wrap; gap: 12px;
   }
@@ -283,7 +273,6 @@
   .stack-item:hover::before { opacity: 1; }
   .stack-item span { position: relative; z-index: 1; }
 
-  /* ── PROJECTS ── */
   .projects-grid {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;
   }
@@ -333,7 +322,6 @@
   }
   .project-card:hover .project-arrow { color: var(--accent); transform: translate(3px,-3px); }
 
-  /* featured card */
   .project-card.featured {
     grid-column: span 2;
     background: linear-gradient(135deg, rgba(124,106,255,0.06), rgba(192,132,252,0.04));
@@ -341,7 +329,6 @@
   }
   .project-card.featured .project-title { font-size: 28px; }
 
-  /* ── QUOTE ── */
   .quote-section {
     text-align: center; padding: 80px 48px;
     border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
@@ -356,7 +343,6 @@
   }
   blockquote strong { color: var(--text); }
 
-  /* ── CONTACT ── */
   .contact-inner {
     display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;
   }
@@ -378,7 +364,6 @@
   .contact-link .arrow { margin-left: auto; opacity: 0; transition: opacity 0.2s, transform 0.2s; }
   .contact-link:hover .arrow { opacity: 1; transform: translateX(4px); }
 
-  /* ── FOOTER ── */
   footer {
     position: relative; z-index: 2;
     padding: 32px 48px;
@@ -391,7 +376,6 @@
   }
   footer .dot { color: var(--accent); }
 
-  /* ── ANIMATIONS ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -409,7 +393,6 @@
     50%      { opacity: 1; }
   }
 
-  /* ── GLOW BLOB ── */
   .blob {
     position: fixed; border-radius: 50%; filter: blur(100px);
     pointer-events: none; z-index: 0;
@@ -431,7 +414,6 @@
     50%      { transform: translate(30px, 40px); }
   }
 
-  /* ── INTERSECTION OBSERVER ── */
   .reveal {
     opacity: 0; transform: translateY(24px);
     transition: opacity 0.7s ease, transform 0.7s ease;
@@ -460,7 +442,6 @@
 <div class="blob blob1"></div>
 <div class="blob blob2"></div>
 
-<!-- NAV -->
 <nav>
   <div class="nav-logo"><span>//</span> elliie.dev</div>
   <ul class="nav-links">
@@ -471,7 +452,6 @@
   </ul>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-tag">moonlightrblx · developer</div>
@@ -488,14 +468,9 @@
       <a href="https://github.com/moonlightrblx" target="_blank" class="btn-ghost">GitHub Profile ↗</a>
     </div>
   </div>
-  <div class="hero-badge">
-    <span class="emoji">😳</span>
-    <span class="badge-text">developering</span>
-  </div>
   <div class="scroll-hint">scroll</div>
 </div>
 
-<!-- ABOUT -->
 <section id="about">
   <div class="section-label">01 · About</div>
   <h2 class="section-title reveal">Who I am</h2>
@@ -542,21 +517,18 @@
   </div>
 </section>
 
-<!-- QUOTE -->
 <div class="quote-section">
   <blockquote class="reveal">
     "<strong>What consumes your mind</strong><br>controls your life."
   </blockquote>
 </div>
 
-<!-- PROJECTS -->
 <section id="projects">
   <div class="section-label">02 · Projects</div>
   <h2 class="section-title reveal">What I've built</h2>
 
   <div class="projects-grid">
 
-    <!-- Featured -->
     <a class="project-card featured reveal" href="https://github.com/moonlightrblx/sdkviewer" target="_blank">
       <span class="project-lang">C++ · Featured</span>
       <div class="project-title">sdkviewer</div>
@@ -602,14 +574,13 @@
   </div>
 </section>
 
-<!-- CONTACT -->
 <section id="contact">
   <div class="contact-inner">
     <div class="contact-text">
       <div class="section-label">03 · Contact</div>
       <h2 class="section-title reveal" style="margin-bottom:20px">Let's connect</h2>
       <p class="reveal">Interested in collaborating or just want to talk shop about reverse engineering, game internals, or low-level systems? Find me online.</p>
-    </div> 
+    </div>
     <div class="contact-links reveal">
       <a class="contact-link" href="https://github.com/moonlightrblx" target="_blank">
         <span class="icon">⌥</span>
@@ -630,14 +601,12 @@
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <p>© 2026 <span class="dot">elliie</span> · moonlightrblx</p>
   <p>built with 😳 &amp; too much curiosity</p>
 </footer>
 
 <script>
-  // Custom cursor
   const cursor = document.getElementById('cursor');
   const ring = document.getElementById('cursorRing');
   let mx = 0, my = 0, rx = 0, ry = 0;
@@ -650,7 +619,6 @@
   }
   animCursor();
 
-  // Cursor hover effect
   document.querySelectorAll('a, button, .stack-item, .project-card').forEach(el => {
     el.addEventListener('mouseenter', () => {
       cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
@@ -664,7 +632,6 @@
     });
   });
 
-  // Project card glow follow
   document.querySelectorAll('.project-card').forEach(card => {
     card.addEventListener('mousemove', e => {
       const r = card.getBoundingClientRect();
@@ -675,7 +642,6 @@
     });
   });
 
-  // Scroll reveal
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) { e.target.classList.add('visible'); }
