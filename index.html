@@ -13,12 +13,12 @@
     --surface: #0d0d14;
     --surface2: #13131c;
     --border: rgba(255,255,255,0.07);
-    --accent: #7c6aff;
-    --accent2: #c084fc;
+    --accent: #b5acfa;
+    --accent2: #003cff;
     --accent3: #38bdf8;
     --text: #e8e6f0;
-    --muted: #6b6880;
-    --glow: rgba(124,106,255,0.15);
+    --muted: #6a62a1;
+    --glow: rgba(30, 0, 255, 0.507);
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,27 +30,6 @@
     color: var(--text);
     font-family: 'Syne', sans-serif;
     overflow-x: hidden;
-    cursor: none;
-  }
-
-  .cursor {
-    width: 10px; height: 10px;
-    background: var(--accent);
-    border-radius: 50%;
-    position: fixed; top: 0; left: 0;
-    pointer-events: none; z-index: 9999;
-    transform: translate(-50%,-50%);
-    transition: transform 0.1s, background 0.2s;
-    mix-blend-mode: screen;
-  }
-  .cursor-ring {
-    width: 36px; height: 36px;
-    border: 1px solid rgba(124,106,255,0.5);
-    border-radius: 50%;
-    position: fixed; top: 0; left: 0;
-    pointer-events: none; z-index: 9998;
-    transform: translate(-50%,-50%);
-    transition: all 0.18s ease;
   }
 
   body::before {
@@ -64,8 +43,9 @@
   .grid-bg {
     position: fixed; inset: 0; z-index: 0;
     background-image:
-      linear-gradient(rgba(124,106,255,0.04) 1px, transparent 1px),
+      linear-gradient(rgba(79, 105, 255, 0.096) 1px, transparent 1px),
       linear-gradient(90deg, rgba(124,106,255,0.04) 1px, transparent 1px);
+
     background-size: 60px 60px;
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
   }
@@ -78,6 +58,7 @@
     border-bottom: 1px solid var(--border);
     background: rgba(5,5,8,0.6);
   }
+  
   .nav-logo {
     font-family: 'JetBrains Mono', monospace;
     font-size: 13px; color: var(--muted); letter-spacing: 0.1em;
@@ -436,14 +417,12 @@
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
 <div class="grid-bg"></div>
 <div class="blob blob1"></div>
 <div class="blob blob2"></div>
 
 <nav>
-  <div class="nav-logo"><span>//</span> elliie.dev</div>
+  <div class="nav-logo"><span></span>elliie.dev</div>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#projects">Projects</a></li>
@@ -465,7 +444,7 @@
     </p>
     <div class="hero-actions">
       <a href="#projects" class="btn-primary">View Projects</a>
-      <a href="https://github.com/moonlightrblx" target="_blank" class="btn-ghost">GitHub Profile ↗</a>
+      <a href="https://github.com/moonlightrblx" target="_blank" class="btn-ghost">GitHub Profile</a>
     </div>
   </div>
   <div class="scroll-hint">scroll</div>
@@ -477,49 +456,45 @@
   <div class="about-grid">
     <div class="about-text reveal">
       <p>I'm <span class="hl">elliie</span>, a developer with a passion for <span class="hl">reverse engineering</span> and <span class="hl">systems programming</span>. I love diving deep into how things work under the hood.</p>
-      <p>My work spans from <span class="hl">C++ game tooling</span> to custom <span class="hl">GUI libraries</span>, always pushing to understand the system at every level.</p>
-      <p>When I'm not writing code, I'm probably figuring out how someone else's code works — and making it better.</p>
-    </div>
+      <p>My work spans from <span class="hl">basic c++ projects</span> to custom <span class="hl">game engines</span>, always pushing to understand the system at every level.</p>
+      </div>
     <div class="about-stats reveal">
       <div class="stat-card">
         <div class="stat-num">44</div>
         <div class="stat-label">Repositories</div>
       </div>
-      <div class="stat-card">
+      <!-- <div class="stat-card">
         <div class="stat-num">23+</div>
         <div class="stat-label">Stars on sdkviewer</div>
-      </div>
+      </div> -->
       <div class="stat-card">
         <div class="stat-num">C++</div>
         <div class="stat-label">Primary Language</div>
       </div>
-      <div class="stat-card">
+      <!-- <div class="stat-card">
         <div class="stat-num">∞</div>
         <div class="stat-label">Curiosity</div>
-      </div>
+      </div> -->
     </div>
   </div>
 
   <div style="margin-top:64px">
-    <div class="section-label">Tech &amp; Tools</div>
+    <div class="section-label">Tools</div>
     <div class="stack-list reveal" style="margin-top:20px">
       <div class="stack-item"><span>C++</span></div>
       <div class="stack-item"><span>Python</span></div>
       <div class="stack-item"><span>C</span></div>
       <div class="stack-item"><span>Java</span></div>
-      <div class="stack-item"><span>Visual Studio Code</span></div>
-      <div class="stack-item"><span>GitHub</span></div>
-      <div class="stack-item"><span>Windows</span></div>
       <div class="stack-item"><span>Reverse Engineering</span></div>
-      <div class="stack-item"><span>Memory Scanning</span></div>
       <div class="stack-item"><span>Game Internals</span></div>
     </div>
   </div>
 </section>
 
+
 <div class="quote-section">
   <blockquote class="reveal">
-    "<strong>What consumes your mind</strong><br>controls your life."
+    "<strong>The mind you train</strong><br>becomes the life you live."
   </blockquote>
 </div>
 
@@ -528,7 +503,6 @@
   <h2 class="section-title reveal">What I've built</h2>
 
   <div class="projects-grid">
-
     <a class="project-card featured reveal" href="https://github.com/moonlightrblx/sdkviewer" target="_blank">
       <span class="project-lang">C++ · Featured</span>
       <div class="project-title">sdkviewer</div>
@@ -554,7 +528,7 @@
     <a class="project-card reveal" href="https://github.com/moonlightrblx/guilibrary" target="_blank">
       <span class="project-lang">C</span>
       <div class="project-title">guilibrary</div>
-      <div class="project-desc">A custom C++ GUI library — built from scratch for lightweight, flexible UI rendering in native applications.</div>
+      <div class="project-desc">A custom C++ library built from imgui for lightweight, flexible UI rendering in windows dx11 applications.</div>
       <div class="project-meta">
         <span>★ 1 star</span>
       </div>
@@ -579,21 +553,21 @@
     <div class="contact-text">
       <div class="section-label">03 · Contact</div>
       <h2 class="section-title reveal" style="margin-bottom:20px">Let's connect</h2>
-      <p class="reveal">Interested in collaborating or just want to talk shop about reverse engineering, game internals, or low-level systems? Find me online.</p>
+      <p class="reveal">Interested in collaborating, or just wanna talk? Find me online.</p>
     </div>
     <div class="contact-links reveal">
       <a class="contact-link" href="https://github.com/moonlightrblx" target="_blank">
-        <span class="icon">⌥</span>
+        <span class="icon">👩‍💻</span>
         <span>github.com/moonlightrblx</span>
         <span class="arrow">→</span>
       </a>
       <a class="contact-link" href="http://moonlightrblx.github.io" target="_blank">
-        <span class="icon">◈</span>
+        <span class="icon">🌐</span>
         <span>moonlightrblx.github.io</span>
         <span class="arrow">→</span>
       </a>
       <a class="contact-link" href="https://discord.com/users/1442687926558261258" target="_blank">
-        <span class="icon">◉</span>
+        <span class="icon">💬</span>
         <span>discord</span>
         <span class="arrow">→</span>
       </a>
@@ -603,44 +577,10 @@
 
 <footer>
   <p>© 2026 <span class="dot">elliie</span> · moonlightrblx</p>
-  <p>built with 😳 &amp; too much curiosity</p>
+  <p>built with love ♥ &amp; cats</p>
 </footer>
 
 <script>
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursorRing');
-  let mx = 0, my = 0, rx = 0, ry = 0;
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-  function animCursor() {
-    cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
-    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
-    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-    requestAnimationFrame(animCursor);
-  }
-  animCursor();
-
-  document.querySelectorAll('a, button, .stack-item, .project-card').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
-      ring.style.transform = 'translate(-50%,-50%) scale(0.5)';
-      ring.style.borderColor = 'var(--accent)';
-    });
-    el.addEventListener('mouseleave', () => {
-      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
-      ring.style.transform = 'translate(-50%,-50%) scale(1)';
-      ring.style.borderColor = 'rgba(124,106,255,0.5)';
-    });
-  });
-
-  document.querySelectorAll('.project-card').forEach(card => {
-    card.addEventListener('mousemove', e => {
-      const r = card.getBoundingClientRect();
-      const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
-      const y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
-      card.style.setProperty('--mx', x + '%');
-      card.style.setProperty('--my', y + '%');
-    });
-  });
 
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => {
