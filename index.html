@@ -6,582 +6,465 @@
 <title>elliie · developer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
   :root {
-    --bg: #050508;
-    --surface: #0d0d14;
-    --surface2: #13131c;
-    --border: rgba(255,255,255,0.07);
-    --accent: #b5acfa;
-    --accent2: #003cff;
-    --accent3: #38bdf8;
-    --text: #e8e6f0;
-    --muted: #6a62a1;
-    --glow: rgba(30, 0, 255, 0.507);
+    --bg: #040406;
+    --surface: #09090e;
+    --surface-bright: #11111a;
+    --border: rgba(255, 96, 173, 0.12);
+    --border-active: rgba(255, 96, 173, 0.5);
+    --accent: #ff60ad;
+    --accent-glow: rgba(255, 96, 173, 0.2);
+    --text: #f3f3f6;
+    --muted: #797382;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   html { scroll-behavior: smooth; }
 
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Syne', sans-serif;
+    font-family: 'JetBrains Mono', monospace;
     overflow-x: hidden;
+    font-size: 13px;
   }
 
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 1;
-    opacity: 0.4;
+  /* Custom Interactive Cursor Element */
+  #custom-cursor {
+    width: 20px; height: 20px;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+    transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
+  }
+  body:hover #custom-cursor { opacity: 1; }
+  .clickable-hover #custom-cursor {
+    width: 40px; height: 40px;
+    background-color: rgba(255, 96, 173, 0.15);
+    border-color: var(--accent);
   }
 
+  /* Grid System & Ambient Glows */
   .grid-bg {
     position: fixed; inset: 0; z-index: 0;
-    background-image:
-      linear-gradient(rgba(79, 105, 255, 0.096) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(124,106,255,0.04) 1px, transparent 1px);
-
-    background-size: 60px 60px;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+    background-image: 
+      linear-gradient(rgba(255, 96, 173, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 96, 173, 0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(circle at 50% 30%, black 30%, transparent 85%);
+    pointer-events: none;
   }
 
+  .ambient-glow {
+    position: fixed; border-radius: 50%; filter: blur(160px);
+    pointer-events: none; z-index: 0; opacity: 0.35;
+    animation: slowPulse 12s ease-in-out infinite alternate;
+  }
+  .glow-1 { width: 600px; height: 600px; background: #ff3b93; top: -150px; right: -100px; }
+  .glow-2 { width: 500px; height: 500px; background: #991b5b; bottom: -150px; left: -150px; animation-delay: -4s; }
+
+  @keyframes slowPulse {
+    0% { transform: scale(1) translate(0, 0); opacity: 0.3; }
+    100% { transform: scale(1.1) translate(30px, 20px); opacity: 0.45; }
+  }
+
+  /* Interface Dashboard System */
+  .dashboard {
+    position: relative; z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    max-width: 1600px;
+    margin: 0 auto;
+    background: rgba(4, 4, 6, 0.35);
+    backdrop-filter: blur(12px);
+  }
+
+  .column {
+    padding: 60px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 90px;
+  }
+  .column-left { border-right: 1px solid var(--border); }
+
+  /* Top Control Navigation */
   nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    padding: 20px 48px;
     display: flex; justify-content: space-between; align-items: center;
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    background: rgba(5,5,8,0.6);
+    padding: 16px 24px;
+    border: 1px solid var(--border);
+    background: rgba(9, 9, 14, 0.7);
+    border-radius: 6px;
+    margin-bottom: 20px;
+    transform: translateY(-20px); opacity: 0;
+    animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-
-  .nav-logo {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px; color: var(--muted); letter-spacing: 0.1em;
-  }
+  .nav-logo { font-weight: 700; color: #fff; font-size: 15px; font-family: 'Syne', sans-serif; letter-spacing: -0.02em; }
   .nav-logo span { color: var(--accent); }
-  .nav-links {
-    display: flex; gap: 36px; list-style: none;
-  }
-  .nav-links a {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); text-decoration: none;
-    transition: color 0.2s;
-  }
-  .nav-links a:hover { color: var(--text); }
+  .nav-links { display: flex; gap: 24px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.3s cubic-bezier(0.25, 1, 0.5, 1); font-size: 12px; }
+  .nav-links a:hover { color: var(--accent); }
 
-  .hero {
-    min-height: 100vh; display: flex; align-items: center;
-    padding: 120px 48px 80px;
-    position: relative; z-index: 2;
-  }
-  .hero-inner { max-width: 900px; }
-
-  .hero-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--accent); margin-bottom: 28px;
-    display: flex; align-items: center; gap: 12px;
-    opacity: 0; animation: fadeUp 0.6s 0.2s ease forwards;
-  }
-  .hero-tag::before {
-    content: ''; display: block; width: 32px; height: 1px; background: var(--accent);
-  }
-
-  h1.hero-name {
-    font-size: clamp(64px, 10vw, 120px);
-    font-weight: 800; line-height: 0.9;
-    letter-spacing: -0.03em;
-    opacity: 0; animation: fadeUp 0.7s 0.35s ease forwards;
-  }
-  h1.hero-name .dim { color: var(--muted); }
-  h1.hero-name .glow-text {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .hero-sub {
-    margin-top: 32px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px; line-height: 1.8; color: var(--muted);
-    max-width: 520px;
-    opacity: 0; animation: fadeUp 0.7s 0.5s ease forwards;
-  }
-  .hero-sub .hl { color: var(--text); }
-
-  .hero-actions {
-    margin-top: 48px; display: flex; gap: 16px; align-items: center;
-    opacity: 0; animation: fadeUp 0.7s 0.65s ease forwards;
-  }
-
-  .btn-primary {
-    padding: 14px 32px;
-    background: var(--accent); color: #fff;
-    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
-    letter-spacing: 0.05em; text-decoration: none;
-    border-radius: 4px;
-    transition: all 0.2s;
-    box-shadow: 0 0 32px rgba(124,106,255,0.3);
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0 48px rgba(124,106,255,0.5);
-  }
-  .btn-ghost {
-    padding: 14px 32px;
-    border: 1px solid var(--border); color: var(--muted);
-    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600;
-    letter-spacing: 0.05em; text-decoration: none;
-    border-radius: 4px;
-    transition: all 0.2s;
-  }
-  .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
-
-  .hero-badge {
-    position: absolute; right: 80px; top: 50%;
-    transform: translateY(-50%);
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 4px;
-    animation: spin 20s linear infinite, fadeIn 1s 0.8s ease forwards;
-    opacity: 0;
-  }
-  .hero-badge::before {
-    content: '';
-    position: absolute; inset: -1px;
-    border-radius: 50%;
-    background: conic-gradient(var(--accent), var(--accent2), transparent, transparent, var(--accent));
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), black calc(100% - 1px));
-    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), black calc(100% - 1px));
-    opacity: 0.5;
-  }
-  .hero-badge .emoji { font-size: 32px; }
-  .hero-badge .badge-text {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase;
-  }
-
-  .scroll-hint {
-    position: absolute; bottom: 40px; left: 48px;
-    font-family: 'JetBrains Mono', monospace; font-size: 10px;
-    letter-spacing: 0.15em; color: var(--muted); text-transform: uppercase;
-    display: flex; align-items: center; gap: 12px;
-    opacity: 0; animation: fadeIn 1s 1.2s ease forwards;
-  }
-  .scroll-hint::after {
-    content: ''; display: block; width: 1px; height: 48px;
-    background: linear-gradient(to bottom, var(--muted), transparent);
-    animation: scrollLine 1.5s ease-in-out infinite;
-  }
-
-  section {
-    position: relative; z-index: 2;
-    padding: 100px 48px;
-    max-width: 1100px; margin: 0 auto;
-  }
-
+  /* Typography Designations */
   .section-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--accent); margin-bottom: 16px;
-    display: flex; align-items: center; gap: 12px;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
   }
-  .section-label::before {
-    content: ''; display: block; width: 24px; height: 1px; background: var(--accent);
+  .section-label::before { 
+    content: ''; display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; 
+    box-shadow: 0 0 8px var(--accent);
+  }
+  
+  h1, h2 { font-family: 'Syne', sans-serif; font-weight: 800; }
+  h2.section-title { font-size: 40px; letter-spacing: -0.02em; color: #fff; margin-bottom: 36px; }
+
+  /* Hero Module Components */
+  .hero-container {
+    padding: 60px 0;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .hero-main-title {
+    font-size: clamp(60px, 8vw, 96px);
+    line-height: 0.85;
+    color: #fff;
+    margin-bottom: 24px;
+    letter-spacing: -0.04em;
+    transform: scale(0.95); opacity: 0;
+    animation: scaleUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  }
+  .hero-sub {
+    color: var(--muted); line-height: 1.8; font-size: 14px; max-width: 440px; margin-bottom: 40px;
+    opacity: 0; transform: translateY(15px);
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+  }
+  .hero-sub .hl { color: var(--accent); font-weight: 600; text-shadow: 0 0 12px rgba(255, 96, 173, 0.2); }
+  
+  .hero-actions { 
+    display: flex; gap: 16px; justify-content: center; 
+    opacity: 0; transform: translateY(15px);
+    animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
   }
 
-  h2.section-title {
-    font-size: clamp(36px, 5vw, 56px);
-    font-weight: 800; letter-spacing: -0.02em;
-    line-height: 1; margin-bottom: 56px;
+  /* Kinetic UI Buttons */
+  .btn-pink {
+    padding: 14px 32px; background: var(--accent); color: #040406;
+    font-family: 'Syne', sans-serif; font-weight: 700; text-decoration: none;
+    border-radius: 4px; box-shadow: 0 4px 20px var(--accent-glow); 
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .btn-pink:hover { transform: translateY(-3px); box-shadow: 0 8px 30px var(--accent); }
+  
+  .btn-outline {
+    padding: 14px 32px; border: 1px solid var(--border); color: var(--text);
+    font-family: 'Syne', sans-serif; font-weight: 700; text-decoration: none;
+    border-radius: 4px; transition: border-color 0.3s, background-color 0.3s;
+  }
+  .btn-outline:hover { border-color: var(--accent); background: rgba(255, 96, 173, 0.03); }
+
+  .scroll-indicator {
+    margin-top: 60px; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    opacity: 0; animation: fadeIn 1s ease 1s forwards;
+  }
+  .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--accent), transparent); position: relative; overflow: hidden; }
+  .scroll-line::after {
+    content: ''; position: absolute; top: -40px; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, transparent, #fff, transparent);
+    animation: dropFlow 2s infinite linear;
   }
 
-  .about-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+  /* Experience Matrix Modules */
+  .about-box p { color: var(--muted); line-height: 1.8; margin-bottom: 24px; font-size: 14px; }
+  .about-box p .hl { color: #fff; font-weight: 500; }
+  
+  .stats-matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 36px; }
+  .matrix-card {
+    background: var(--surface); border: 1px solid var(--border); padding: 20px; border-radius: 6px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s;
   }
-  .about-text p {
-    font-size: 16px; line-height: 1.8; color: var(--muted); margin-bottom: 20px;
-  }
-  .about-text p .hl { color: var(--text); font-weight: 600; }
+  .matrix-card:hover { transform: translateY(-4px); border-color: var(--border-active); }
+  .matrix-label { font-size: 10px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.05em; }
+  .matrix-value { font-size: 22px; font-weight: 700; color: var(--accent); text-shadow: 0 0 10px rgba(255, 96, 173, 0.15); }
 
-  .about-stats {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
-  }
-  .stat-card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 28px 24px;
-    transition: border-color 0.2s;
-  }
-  .stat-card:hover { border-color: var(--accent); }
-  .stat-num {
-    font-size: 42px; font-weight: 800; letter-spacing: -0.04em;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  }
-  .stat-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--muted); margin-top: 4px;
-  }
-
-  .stack-list {
-    display: flex; flex-wrap: wrap; gap: 12px;
-  }
-  .stack-item {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; letter-spacing: 0.05em;
-    padding: 10px 20px;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    color: var(--muted);
-    transition: all 0.2s;
+  /* Reactive Grid Architecture */
+  .projects-wrapper { display: flex; flex-direction: column; gap: 20px; }
+  .project-box {
+    background: var(--surface); border: 1px solid var(--border); padding: 28px;
+    border-radius: 8px; text-decoration: none; color: inherit; display: block;
     position: relative; overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .stack-item::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    opacity: 0; transition: opacity 0.2s;
+  .project-box:hover { 
+    border-color: var(--border-active); 
+    transform: translateY(-2px) scale(1.01);
   }
-  .stack-item:hover { color: #fff; border-color: transparent; }
-  .stack-item:hover::before { opacity: 1; }
-  .stack-item span { position: relative; z-index: 1; }
+  
+  /* Positional interactive glow mask generated from JS coordinates */
+  .project-box::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(800px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(255, 96, 173, 0.06), transparent 40%);
+    z-index: 1; opacity: 0; transition: opacity 0.3s;
+  }
+  .project-box:hover::before { opacity: 1; }
 
-  .projects-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;
+  .project-tag {
+    font-size: 10px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em;
+    border: 1px solid rgba(255, 96, 173, 0.25); padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 20px;    
   }
-  .project-card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 36px 32px;
-    position: relative; overflow: hidden;
-    transition: border-color 0.2s, transform 0.2s;
-    text-decoration: none; color: inherit; display: block;
+  .project-box.featured-project {
+    border-color: rgba(255, 96, 173, 0.25);
+    background: linear-gradient(135deg, rgba(255, 96, 173, 0.015), transparent);
   }
-  .project-card::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(circle at var(--mx,50%) var(--my,50%), var(--glow), transparent 60%);
-    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  .project-box.featured-project::after {
+    content: '// FEATURED WORK'; position: absolute; top: 32px; right: 28px;
+    font-size: 10px; color: var(--muted); letter-spacing: 0.05em;
   }
-  .project-card:hover { border-color: rgba(124,106,255,0.3); transform: translateY(-2px); }
-  .project-card:hover::after { opacity: 1; }
+  .project-name { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 10px; position: relative; z-index: 2; }
+  .project-summary { color: var(--muted); line-height: 1.6; font-size: 13px; position: relative; z-index: 2; }
+  .project-link-icon { position: absolute; bottom: 28px; right: 28px; color: var(--muted); font-size: 18px; transition: transform 0.3s; z-index: 2; }
+  .project-box:hover .project-link-icon { transform: translate(3px, -3px); color: var(--accent); }
 
-  .project-lang {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--accent); margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px;
+  /* Kinetic Quote Designations */
+  .quote-container {
+    border-left: 3px solid var(--accent); padding-left: 24px; margin: 20px 0;
+    transform: translateX(-10px); opacity: 0; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .project-lang::before {
-    content: ''; display: block; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--accent);
-  }
+  .quote-container.revealed { transform: translateX(0); opacity: 1; }
+  .quote-text { font-size: 19px; font-style: italic; color: var(--muted); line-height: 1.5; font-family: 'Syne', sans-serif; }
+  .quote-text strong { color: #fff; font-weight: 700; }
 
-  .project-title {
-    font-size: 22px; font-weight: 700; margin-bottom: 12px;
-    letter-spacing: -0.01em;
+  /* Secure Terminal Node Networks */
+  .terminal-links { display: flex; flex-direction: column; gap: 14px; }
+  .terminal-item {
+    display: flex; align-items: center; gap: 18px; padding: 18px 24px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    text-decoration: none; color: var(--text); position: relative;
+    transition: border-color 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .project-desc {
-    font-size: 14px; line-height: 1.7; color: var(--muted);
+  .terminal-item:hover { border-color: var(--border-active); transform: translateX(4px); }
+  .terminal-item::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(600px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(255, 96, 173, 0.05), transparent 40%);
+    opacity: 0; transition: opacity 0.3s;
   }
-  .project-meta {
-    margin-top: 24px; display: flex; gap: 20px;
-    font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    color: var(--muted);
-  }
-  .project-meta span { display: flex; align-items: center; gap: 6px; }
-  .project-arrow {
-    position: absolute; top: 32px; right: 32px;
-    font-size: 20px; color: var(--muted); transition: all 0.2s;
-  }
-  .project-card:hover .project-arrow { color: var(--accent); transform: translate(3px,-3px); }
+  .terminal-item:hover::before { opacity: 1; }
+  
+  .terminal-icon { color: var(--accent); font-size: 18px; }
+  .terminal-address { font-size: 13px; }
+  .terminal-arrow { margin-left: auto; color: var(--muted); transition: transform 0.3s; }
+  .terminal-item:hover .terminal-arrow { transform: translateX(3px); color: var(--accent); }
 
-  .project-card.featured {
-    grid-column: span 2;
-    background: linear-gradient(135deg, rgba(124,106,255,0.06), rgba(192,132,252,0.04));
-    border-color: rgba(124,106,255,0.2);
-  }
-  .project-card.featured .project-title { font-size: 28px; }
-
-  .quote-section {
-    text-align: center; padding: 80px 48px;
-    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-    position: relative; z-index: 2;
-  }
-  blockquote {
-    font-size: clamp(20px, 3vw, 32px);
-    font-weight: 600; letter-spacing: -0.01em;
-    color: var(--muted); font-style: italic;
-    max-width: 700px; margin: 0 auto;
-    line-height: 1.4;
-  }
-  blockquote strong { color: var(--text); }
-
-  .contact-inner {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;
-  }
-  .contact-text h2 { margin-bottom: 20px; }
-  .contact-text p {
-    font-size: 15px; line-height: 1.8; color: var(--muted);
-  }
-  .contact-links { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
-  .contact-link {
-    display: flex; align-items: center; gap: 16px;
-    padding: 18px 24px;
-    border: 1px solid var(--border);
-    text-decoration: none; color: var(--muted);
-    font-family: 'JetBrains Mono', monospace; font-size: 13px;
-    transition: all 0.2s;
-  }
-  .contact-link:hover { border-color: var(--accent); color: var(--text); }
-  .contact-link .icon { font-size: 18px; }
-  .contact-link .arrow { margin-left: auto; opacity: 0; transition: opacity 0.2s, transform 0.2s; }
-  .contact-link:hover .arrow { opacity: 1; transform: translateX(4px); }
-
+  /* Consolidated Global Structural Footer */
   footer {
-    position: relative; z-index: 2;
-    padding: 32px 48px;
-    border-top: 1px solid var(--border);
+    margin-top: auto; padding-top: 60px;
     display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--border); color: var(--muted); font-size: 11px;
   }
-  footer p {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px; letter-spacing: 0.1em; color: var(--muted);
-  }
-  footer .dot { color: var(--accent); }
+  footer span { color: var(--accent); }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-  @keyframes spin {
-    from { transform: translateY(-50%) rotate(0deg); }
-    to   { transform: translateY(-50%) rotate(360deg); }
-  }
-  @keyframes scrollLine {
-    0%,100% { opacity: 0.3; }
-    50%      { opacity: 1; }
-  }
+  /* Dynamic Intersection Scroll System Rules */
+  .scroll-trigger { opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+  .scroll-trigger.revealed { opacity: 1; transform: translateY(0); }
 
-  .blob {
-    position: fixed; border-radius: 50%; filter: blur(100px);
-    pointer-events: none; z-index: 0;
-  }
-  .blob1 {
-    width: 600px; height: 600px;
-    background: rgba(124,106,255,0.07);
-    top: -200px; right: -100px;
-    animation: blobMove 12s ease-in-out infinite;
-  }
-  .blob2 {
-    width: 400px; height: 400px;
-    background: rgba(192,132,252,0.05);
-    bottom: 100px; left: -100px;
-    animation: blobMove 16s ease-in-out infinite reverse;
-  }
-  @keyframes blobMove {
-    0%,100% { transform: translate(0,0); }
-    50%      { transform: translate(30px, 40px); }
-  }
+  /* System Core Animation Sets */
+  @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes fadeUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes fadeIn { to { opacity: 1; } }
+  @keyframes dropFlow { 0% { top: -40px; } 100% { top: 40px; } }
 
-  .reveal {
-    opacity: 0; transform: translateY(24px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-
-  @media (max-width: 768px) {
-    nav { padding: 16px 24px; }
-    .nav-links { display: none; }
-    .hero { padding: 100px 24px 80px; }
-    .hero-badge { display: none; }
-    section { padding: 64px 24px; }
-    .about-grid { grid-template-columns: 1fr; }
-    .projects-grid { grid-template-columns: 1fr; }
-    .project-card.featured { grid-column: span 1; }
-    .contact-inner { grid-template-columns: 1fr; }
-    footer { flex-direction: column; gap: 8px; text-align: center; }
+  /* Responsive Adjustments */
+  @media (max-width: 992px) {
+    #custom-cursor { display: none !important; }
+    .dashboard { grid-template-columns: 1fr; }
+    .column-left { border-right: none; border-bottom: 1px solid var(--border); }
+    .column { padding: 45px 24px; gap: 70px; }
   }
 </style>
 </head>
 <body>
 
+<div id="custom-cursor"></div>
 <div class="grid-bg"></div>
-<div class="blob blob1"></div>
-<div class="blob blob2"></div>
+<div class="ambient-glow glow-1"></div>
+<div class="ambient-glow glow-2"></div>
 
-<nav>
-  <div class="nav-logo"><span></span>elliie.dev</div>
-  <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="https://github.com/moonlightrblx" target="_blank">GitHub ↗</a></li>
-  </ul>
-</nav>
+<main class="dashboard">
+  
+  <div class="column column-left">
+    
+    <nav>
+      <div class="nav-logo"><span>elliie</span>.dev</div>
+      <ul class="nav-links">
+        <li><a href="#about" class="interactive-node">About</a></li>
+        <li><a href="#projects" class="interactive-node">Projects</a></li>
+        <li><a href="#contact" class="interactive-node">Contact</a></li>
+      </ul>
+    </nav>
 
-<div class="hero">
-  <div class="hero-inner">
-    <div class="hero-tag">moonlightrblx · developer</div>
-    <h1 class="hero-name">
-      <span class="dim">hi, i'm</span><br>
-      <span class="glow-text">elliie</span>
-    </h1>
-    <p class="hero-sub">
-      <span class="hl">Reverse engineer & systems developer.</span><br>
-      Owner of <span class="hl">moonlight, clover</span> &amp; <span class="hl">cloud.cc</span>.
-    </p>
-    <div class="hero-actions">
-      <a href="#projects" class="btn-primary">View Projects</a>
-      <a href="https://github.com/moonlightrblx" target="_blank" class="btn-ghost">GitHub Profile</a>
+    <div class="hero-container">
+      <h1 class="hero-main-title">elliie</h1>
+      <p class="hero-sub">
+        <span class="hl">Reverse engineer & systems developer.</span><br/>
+        Owner of <span class="hl">moonlight, clover</span> &amp; <span class="hl">cloud.cc</span>.
+      </p>
+      <div class="hero-actions">
+        <a href="#projects" class="btn-pink interactive-node">View Projects</a>
+        <a href="https://github.com/moonlightrblx" target="_blank" class="btn-outline interactive-node">GitHub</a>
+      </div>
+      <div class="scroll-indicator">
+        <div>scroll configuration</div>
+        <div class="scroll-line"></div>
+      </div>
     </div>
-  </div>
-  <div class="scroll-hint">scroll</div>
-</div>
 
-<section id="about">
-  <div class="section-label">01 · About</div>
-  <h2 class="section-title reveal">Who I am</h2>
-  <div class="about-grid">
-    <div class="about-text reveal">
+    <div id="about" class="about-box scroll-trigger">
+      <div class="section-label">01 · Personal Index</div>
+      <h2 class="section-title">Who I am</h2>
       <p>I'm <span class="hl">elliie</span>, a developer with a passion for <span class="hl">reverse engineering</span> and <span class="hl">systems programming</span>. I love diving deep into how things work under the hood.</p>
       <p>My work spans from <span class="hl">basic c++ projects</span> to custom <span class="hl">game engines</span>, always pushing to understand the system at every level.</p>
+      
+      <div class="stats-matrix">
+        <div class="matrix-card">
+          <div class="matrix-label">Repos</div>
+          <div class="matrix-value">44</div>
+        </div>
+        <div class="matrix-card">
+          <div class="matrix-label">Core</div>
+          <div class="matrix-value">C++</div>
+        </div>
+        <div class="matrix-card">
+          <div class="matrix-label">Target</div>
+          <div class="matrix-value">x64</div>
+        </div>
       </div>
-    <div class="about-stats reveal">
-      <div class="stat-card">
-        <div class="stat-num">44</div>
-        <div class="stat-label">Repositories</div>
-      </div>
-      <!-- <div class="stat-card">
-        <div class="stat-num">23+</div>
-        <div class="stat-label">Stars on sdkviewer</div>
-      </div> -->
-      <div class="stat-card">
-        <div class="stat-num">C++</div>
-        <div class="stat-label">Primary Language</div>
-      </div>
-      <!-- <div class="stat-card">
-        <div class="stat-num">∞</div>
-        <div class="stat-label">Curiosity</div>
-      </div> -->
     </div>
+
   </div>
 
-  <div style="margin-top:64px">
-    <div class="section-label">Tools</div>
-    <div class="stack-list reveal" style="margin-top:20px">
-      <div class="stack-item"><span>C++</span></div>
-      <div class="stack-item"><span>Python</span></div>
-      <div class="stack-item"><span>C</span></div>
-      <div class="stack-item"><span>Java</span></div>
-      <div class="stack-item"><span>Reverse Engineering</span></div>
-      <div class="stack-item"><span>Game Internals</span></div>
+  <div class="column column-right">
+    
+    <div id="projects" class="scroll-trigger">
+      <div class="section-label">02 · Compiled Works</div>
+      <h2 class="section-title">What I've built</h2>
+      
+      <div class="projects-wrapper">
+        <a class="project-box featured-project interactive-node mouse-mesh" href="https://github.com/moonlightrblx/sdkviewer" target="_blank">
+          <span class="project-tag">C++</span>
+          <div class="project-name">sdkviewer</div>
+          <div class="project-summary">Constantly updated CS2 offsets viewer — faster than a2x. A reliable tool for keeping up with game updates and internal structure changes.</div>
+          <div class="project-link-icon">↗</div>
+        </a>
+
+        <a class="project-box interactive-node mouse-mesh" href="https://github.com/moonlightrblx/reversing" target="_blank">
+          <span class="project-tag">C++</span>
+          <div class="project-name">reversing</div>
+          <div class="project-summary">A collection of everything reversed so far — documented techniques, structures, and findings from various reverse engineering sessions.</div>
+          <div class="project-link-icon">↗</div>
+        </a>
+
+        <a class="project-box interactive-node mouse-mesh" href="https://github.com/moonlightrblx/guilibrary" target="_blank">
+          <span class="project-tag">C</span>
+          <div class="project-name">guilibrary</div>
+          <div class="project-summary">A custom C++ library built from imgui for lightweight, flexible UI rendering in windows dx11 applications.</div>
+          <div class="project-link-icon">↗</div>
+        </a>
+
+        <a class="project-box interactive-node mouse-mesh" href="https://github.com/moonlightrblx/cloc" target="_blank">
+          <span class="project-tag">C++</span>
+          <div class="project-name">cloc</div>
+          <div class="project-summary">Count lines of source code across your entire project. A fast, developer-friendly utility for keeping track of codebase size and growth.</div>
+          <div class="project-link-icon">↗</div>
+        </a>
+      </div>
     </div>
-  </div>
-</section>
 
-
-<div class="quote-section">
-  <blockquote class="reveal">
-    "<strong>The mind you train</strong><br>becomes the life you live."
-  </blockquote>
-</div>
-
-<section id="projects">
-  <div class="section-label">02 · Projects</div>
-  <h2 class="section-title reveal">What I've built</h2>
-
-  <div class="projects-grid">
-    <a class="project-card featured reveal" href="https://github.com/moonlightrblx/sdkviewer" target="_blank">
-      <span class="project-lang">C++ · Featured</span>
-      <div class="project-title">sdkviewer</div>
-      <div class="project-desc">Constantly updated CS2 offsets viewer — faster than a2x. A reliable tool for keeping up with game updates and internal structure changes.</div>
-      <div class="project-meta">
+    <div class="quote-container scroll-trigger">
+      <div class="quote-text">
+        "<strong>The mind you train</strong> becomes the life you live."
       </div>
-      <div class="project-arrow">↗</div>
-    </a>
-
-    <a class="project-card reveal" href="https://github.com/moonlightrblx/reversing" target="_blank">
-      <span class="project-lang">C++</span>
-      <div class="project-title">reversing</div>
-      <div class="project-desc">A collection of everything reversed so far — documented techniques, structures, and findings from various reverse engineering sessions.</div>
-      <div class="project-meta">
-      </div>
-      <div class="project-arrow">↗</div>
-    </a>
-
-    <a class="project-card reveal" href="https://github.com/moonlightrblx/guilibrary" target="_blank">
-      <span class="project-lang">C</span>
-      <div class="project-title">guilibrary</div>
-      <div class="project-desc">A custom C++ library built from imgui for lightweight, flexible UI rendering in windows dx11 applications.</div>
-      <div class="project-meta">
-      </div>
-      <div class="project-arrow">↗</div>
-    </a>
-
-    <a class="project-card reveal" href="https://github.com/moonlightrblx/cloc" target="_blank">
-      <span class="project-lang">C++</span>
-      <div class="project-title">cloc</div>
-      <div class="project-desc">Count lines of source code across your entire project. A fast, developer-friendly utility for keeping track of codebase size and growth.</div>
-      <div class="project-meta">
-      </div>
-      <div class="project-arrow">↗</div>
-    </a>
-
-  </div>
-</section>
-
-<section id="contact">
-  <div class="contact-inner">
-    <div class="contact-text">
-      <div class="section-label">03 · Contact</div>
-      <h2 class="section-title reveal" style="margin-bottom:20px">Let's connect</h2>
-      <p class="reveal">Interested in collaborating, or just wanna talk? Find me online.</p>
     </div>
-    <div class="contact-links reveal">
-      <a class="contact-link" href="https://github.com/moonlightrblx" target="_blank">
-        <span class="icon">👩‍💻</span>
-        <span>github.com/moonlightrblx</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="contact-link" href="http://moonlightrblx.github.io" target="_blank">
-        <span class="icon">🌐</span>
-        <span>moonlightrblx.github.io</span>
-        <span class="arrow">→</span>
-      </a>
-      <a class="contact-link" href="https://discord.com/users/1442687926558261258" target="_blank">
-        <span class="icon">💬</span>
-        <span>discord</span>
-        <span class="arrow">→</span>
-      </a>
-    </div>
-  </div>
-</section>
 
-<footer>
-  <p>© 2026 <span class="dot">elliie</span> · moonlightrblx</p>
-  <p>built with love ♥ &amp; cats</p>
-</footer>
+    <div id="contact" class="scroll-trigger">
+      <div class="section-label">03 · Communications</div>
+      <h2 class="section-title">Let's connect</h2>
+      
+      <div class="terminal-links">
+        <a class="terminal-item interactive-node mouse-mesh" href="https://github.com/moonlightrblx" target="_blank">
+          <span class="terminal-icon">🖳</span>
+          <span class="terminal-address">github.com/moonlightrblx</span>
+          <span class="terminal-arrow">→</span>
+        </a>
+        <a class="terminal-item interactive-node mouse-mesh" href="http://moonlightrblx.github.io" target="_blank">
+          <span class="terminal-icon">🌐</span>
+          <span class="terminal-address">moonlightrblx.github.io</span>
+          <span class="terminal-arrow">→</span>
+        </a>
+        <a class="terminal-item interactive-node mouse-mesh" href="https://discord.com/users/1442687926558261258" target="_blank">
+          <span class="terminal-icon">💬</span>
+          <span class="terminal-address">discord ID endpoint</span>
+          <span class="terminal-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 <span>elliie</span> · moonlightrblx</p>
+      <p>built with love &amp; cats</p>
+    </footer>
+
+  </div>
+
+</main>
 
 <script>
+  // Dynamic Cursor Tracking Logic
+  const cursor = document.getElementById('custom-cursor');
+  
+  document.addEventListener('mousemove', (e) => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
 
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add('visible'); }
+  // Expand cursor design envelope on interactive nodes
+  document.querySelectorAll('.interactive-node').forEach(elem => {
+    elem.addEventListener('mouseenter', () => document.body.classList.add('clickable-hover'));
+    elem.addEventListener('mouseleave', () => document.body.classList.remove('clickable-hover'));
+  });
+
+  // Real-time Coordinate Mesh Lighting Effects
+  document.querySelectorAll('.mouse-mesh').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
     });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  });
+
+  // Performance-Optimized Core Viewport Intersection Observers
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.scroll-trigger').forEach(target => {
+    revealObserver.observe(target);
+  });
 </script>
+
 </body>
 </html>
